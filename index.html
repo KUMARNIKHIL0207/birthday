@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Birthday Gift</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #f8bbd0, #fce4ec);
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      perspective: 1000px;
+    }
+
+    /* Gift Box */
+    #giftBox {
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(145deg, #d81b60, #ad1457);
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease;
+      z-index: 5;
+    }
+
+    #giftBox:hover {
+      transform: rotateY(15deg) rotateX(10deg) scale(1.05);
+    }
+
+    /* Ribbon */
+    #giftBox::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 150px;
+      background: #fff;
+    }
+
+    #giftBox::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 150px;
+      height: 30px;
+      background: #fff;
+      transform: translateY(-50%);
+    }
+
+    /* Blast Circle */
+    .blast {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,215,0,0.8), rgba(255,0,0,0.6));
+      animation: explode 0.6s ease-out forwards;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @keyframes explode {
+      from { transform: scale(5); opacity: 1; }
+      to { transform: scale(2.5); opacity: 1; }
+    }
+
+    /* Shake */
+    .shake {
+      animation: shakeBox 0.5s ease;
+    }
+
+    @keyframes shakeBox {
+      0% { transform: translateX(5) rotate(0); }
+      25% { transform: translateX(-10px) rotate(-5deg); }
+      50% { transform: translateX(10px) rotate(5deg); }
+      75% { transform: translateX(-5px) rotate(-3deg); }
+      100% { transform: translateX(5) rotate(0); }
+    }
+
+    /* Broken Look */
+    .broken {
+      background: repeating-linear-gradient(
+        45deg,
+        #880e4f,
+        #880e4f 10px,
+        #4a148c 10px,
+        #4a148c 20px
+      );
+      box-shadow: inset 0 0 15px #000;
+    }
+
+    /* Message */
+    #message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      color: #4a148c;
+      opacity: 0;
+      transition: opacity 1s ease-in;
+      z-index: 20;
+    }
+
+    .fall {
+      animation: fallDown 2s forwards;
+    }
+
+    @keyframes fallDown {
+      to { transform: translate(-50%, 200%); opacity: 0; }
+    }
+
+    /* Confetti */
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 14px;
+      background-color: red;
+      opacity: 0.9;
+      animation: confettiFall 2s linear forwards;
+      z-index: 15;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(600px) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="giftBox"></div>
+  <div id="message">Happy Birthday Shashwat!<br>
+    I hope you have the most amazing day celebrating!<br>
+    Cheers to another year of great memories, successes, and happiness.<br>
+    Enjoy every moment!
+  </div>
+
+  <!-- Background Music -->
+  <audio id="music" src="happy birthday.mp3"></audio>
+  <buton oneclick="playsong(happy birthday.mp3)"></buton>
+  <script>
+    function playsong(){
+        document.getelementbyid("happy birthday.mp3").play();
+    }
+  </script>
+  <!-- Blast Sound -->
+  <audio id="blastSound" src="blast.mp3"></audio>
+
+  <script>
+    const giftBox = document.getElementById('giftBox');
+    const message = document.getElementById('message');
+    const music = document.getElementById('music');
+    const blastSound = document.getElementById('blastSound');
+    let clickCount = 0;
+
+    function createConfetti(x, y) {
+      for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = (x + Math.random() * 100 - 50) + 'px';
+        confetti.style.top = (y + Math.random() * 50 - 25) + 'px';
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.animationDuration = (1.5 + Math.random()) + 's';
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 2000);
+      }
+    }
+
+    giftBox.addEventListener('click', (e) => {
+      clickCount++;
+
+      // Play music on first click
+      if (clickCount === 1) {
+        music.play();
+      }
+
+      // Play blast sound
+      blastSound.currentTime = 0;
+      blastSound.play();
+
+      // Blast effect
+      const blast = document.createElement('div');
+      blast.className = 'blast';
+      blast.style.left = (e.pageX - 100) + 'px';
+      blast.style.top = (e.pageY - 100) + 'px';
+      document.body.appendChild(blast);
+      setTimeout(() => blast.remove(), 1000);
+
+      // Confetti effect
+      createConfetti(e.pageX, e.pageY);
+
+      // Gift shake + break + repair
+      giftBox.classList.add('shake');
+      giftBox.classList.add('broken');
+      setTimeout(() => {
+        giftBox.classList.remove('shake');
+        giftBox.classList.remove('broken');
+      }, 1000);
+
+      if (clickCount === 3) {
+        // Open gift
+        giftBox.style.display = 'none';
+        message.style.opacity = 1;
+
+        // After 4 seconds, make text fall
+        setTimeout(() => {
+          message.classList.add('fall');
+        }, 4000);
+      }
+    });
+  </script>
+</body>
+</html>
